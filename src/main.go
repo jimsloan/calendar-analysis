@@ -115,10 +115,29 @@ func main() {
 
 		// report on each day
 		daytotal := 0
+		freeblock := 0
+		startfree := daystart
+		endfree := dayend
 		for i := range day {
+			if i > 0 {
+				startfree = day[i-1].end
+			}
+			if i < len(day) {
+				endfree = day[i].start
+			}
+
+			freeblock = int((endfree.Unix() - startfree.Unix()) / 60)
 			daytotal = daytotal + int((day[i].end.Unix() - day[i].start.Unix()))
-			fmt.Printf("\t%v\n\t\t%v - %v = %d\n", day[i].subject, day[i].start.Format("3:04PM"), day[i].end.Format("3:04PM"), (day[i].end.Unix()-day[i].start.Unix())/60)
+			if freeblock > 0 {
+				fmt.Printf("\tBlock Free: %d (%v - %v)\n", (endfree.Unix()-startfree.Unix())/60, startfree.Format(timeformat), endfree.Format(timeformat))
+			}
+			fmt.Printf("\t%v\n\t\t%v - %v = %d\n", day[i].subject, day[i].start.Format(timeformat), day[i].end.Format(timeformat), (day[i].end.Unix()-day[i].start.Unix())/60)
 		}
+		freeblock = int((endfree.Unix() - startfree.Unix()) / 60)
+		if freeblock > 0 {
+			fmt.Printf("Last Block Free: %d (%v - %v)\n", (endfree.Unix()-startfree.Unix())/60, startfree.Format(timeformat), endfree.Format(timeformat))
+		}
+
 		fmt.Printf("====================================\n\ttotal = %d\n\n", daytotal/60)
 	}
 }
